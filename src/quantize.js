@@ -487,4 +487,4 @@ var MMCQ = (function() {
     }
 })();
 
-module.exports = MMCQ.quantize
+export default MMCQ.quantize
