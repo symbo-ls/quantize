@@ -1,0 +1,52 @@
+From b9ccb5778b4d699c6b639118a4d05c440717242a Mon Sep 17 00:00:00 2001
+From: AlfredJKwack <thomas+github@badsoda.com>
+Date: Sat, 22 Jul 2017 11:57:38 +0200
+Subject: [PATCH] Change how quantize counts colors.
+
+The inner function used by quantize was counting the number of colors added to the palette, starting from 1. This only works when the PQueue passed contains only 1 VBox; but the iter function is called twice, and the second time, the VBox contains more than one color. This means that in some circumstances it was counting the number of colors added incorrectly, and so quantize.js would sometimes return the wrong number of colors . This commit changes iter to start counting at the actual number of colors in the PQueue, so that it always returns the number of colors requested.
+---
+ quantize.js | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/quantize.js b/quantize.js
+index 731d188..dc60e0c 100644
+--- a/quantize.js
++++ b/quantize.js
+@@ -426,10 +426,15 @@ var MMCQ = (function() {
+         // inner function to do the iteration
+ 
+         function iter(lh, target) {
+-            var ncolors = 1,
++            var ncolors = lh.size(),
+                 niters = 0,
+                 vbox;
+             while (niters < maxIterations) {
++                if (ncolors >= target) return;
++                if (niters++ > maxIterations) {
++                    // console.log("infinite loop; perhaps too few pixels!");
++                    return;
++                }
+                 vbox = lh.pop();
+                 if (!vbox.count()) { /* just put it back */
+                     lh.push(vbox);
+@@ -450,11 +455,6 @@ var MMCQ = (function() {
+                     lh.push(vbox2);
+                     ncolors++;
+                 }
+-                if (ncolors >= target) return;
+-                if (niters++ > maxIterations) {
+-                    // console.log("infinite loop; perhaps too few pixels!");
+-                    return;
+-                }
+             }
+         }
+ 
+@@ -471,7 +471,7 @@ var MMCQ = (function() {
+         }
+ 
+         // next set - generate the median cuts using the (npix * vol) sorting.
+-        iter(pq2, maxcolors - pq2.size());
++        iter(pq2, maxcolors);
+ 
+         // calculate the actual colors
+         var cmap = new CMap();
