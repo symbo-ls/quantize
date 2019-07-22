@@ -1,2 +1,518 @@
-if(!t)var t={map:function(t,r){var n={};return r?t.map(function(t,o){return n.index=o,r.call(n,t)}):t.slice()},naturalOrder:function(t,r){return t<r?-1:t>r?1:0},sum:function(t,r){var n={};return t.reduce(r?function(t,o,i){return n.index=i,t+r.call(n,o)}:function(t,r){return t+r},0)},max:function(r,n){return Math.max.apply(null,n?t.map(r,n):r)}};export default function(){var r=5,n=8-r,o=1e3;function i(t,n,o){return(t<<2*r)+(n<<r)+o}function u(t){var r=[],n=!1;function o(){r.sort(t),n=!0}return{push:function(t){r.push(t),n=!1},peek:function(t){return n||o(),void 0===t&&(t=r.length-1),r[t]},pop:function(){return n||o(),r.pop()},size:function(){return r.length},map:function(t){return r.map(t)},debug:function(){return n||o(),r}}}function e(t,r,n,o,i,u,e){this.r1=t,this.r2=r,this.g1=n,this.g2=o,this.b1=i,this.b2=u,this.histo=e}function s(){this.vboxes=new u(function(r,n){return t.naturalOrder(r.vbox.count()*r.vbox.volume(),n.vbox.count()*n.vbox.volume())})}function h(r,n){if(n.count()){var o=n.r2-n.r1+1,u=n.g2-n.g1+1,e=t.max([o,u,n.b2-n.b1+1]);if(1==n.count())return[n.copy()];var s,h,f,c,a=0,v=[],l=[];if(e==o)for(s=n.r1;s<=n.r2;s++){for(c=0,h=n.g1;h<=n.g2;h++)for(f=n.b1;f<=n.b2;f++)c+=r[i(s,h,f)]||0;v[s]=a+=c}else if(e==u)for(s=n.g1;s<=n.g2;s++){for(c=0,h=n.r1;h<=n.r2;h++)for(f=n.b1;f<=n.b2;f++)c+=r[i(h,s,f)]||0;v[s]=a+=c}else for(s=n.b1;s<=n.b2;s++){for(c=0,h=n.r1;h<=n.r2;h++)for(f=n.g1;f<=n.g2;f++)c+=r[i(h,f,s)]||0;v[s]=a+=c}return v.forEach(function(t,r){l[r]=a-t}),function(t){var r,o,i,u,e,h=t+"1",f=t+"2",c=0;for(s=n[h];s<=n[f];s++)if(v[s]>a/2){for(i=n.copy(),u=n.copy(),e=(r=s-n[h])<=(o=n[f]-s)?Math.min(n[f]-1,~~(s+o/2)):Math.max(n[h],~~(s-1-r/2));!v[e];)e++;for(c=l[e];!c&&v[e-1];)c=l[--e];return i[f]=e,u[h]=i[f]+1,[i,u]}}(e==o?"r":e==u?"g":"b")}}return e.prototype={volume:function(t){return this._volume&&!t||(this._volume=(this.r2-this.r1+1)*(this.g2-this.g1+1)*(this.b2-this.b1+1)),this._volume},count:function(t){var r=this.histo;if(!this._count_set||t){var n,o,u,e=0;for(n=this.r1;n<=this.r2;n++)for(o=this.g1;o<=this.g2;o++)for(u=this.b1;u<=this.b2;u++)e+=r[i(n,o,u)]||0;this._count=e,this._count_set=!0}return this._count},copy:function(){return new e(this.r1,this.r2,this.g1,this.g2,this.b1,this.b2,this.histo)},avg:function(t){var n=this.histo;if(!this._avg||t){var o,u,e,s,h=0,f=1<<8-r,c=0,a=0,v=0;for(u=this.r1;u<=this.r2;u++)for(e=this.g1;e<=this.g2;e++)for(s=this.b1;s<=this.b2;s++)h+=o=n[i(u,e,s)]||0,c+=o*(u+.5)*f,a+=o*(e+.5)*f,v+=o*(s+.5)*f;this._avg=h?[~~(c/h),~~(a/h),~~(v/h)]:[~~(f*(this.r1+this.r2+1)/2),~~(f*(this.g1+this.g2+1)/2),~~(f*(this.b1+this.b2+1)/2)]}return this._avg},contains:function(t){var r=t[0]>>n;return gval=t[1]>>n,bval=t[2]>>n,r>=this.r1&&r<=this.r2&&gval>=this.g1&&gval<=this.g2&&bval>=this.b1&&bval<=this.b2}},s.prototype={push:function(t){this.vboxes.push({vbox:t,color:t.avg()})},palette:function(){return this.vboxes.map(function(t){return t.color})},size:function(){return this.vboxes.size()},map:function(t){for(var r=this.vboxes,n=0;n<r.size();n++)if(r.peek(n).vbox.contains(t))return r.peek(n).color;return this.nearest(t)},nearest:function(t){for(var r,n,o,i=this.vboxes,u=0;u<i.size();u++)((n=Math.sqrt(Math.pow(t[0]-i.peek(u).color[0],2)+Math.pow(t[1]-i.peek(u).color[1],2)+Math.pow(t[2]-i.peek(u).color[2],2)))<r||void 0===r)&&(r=n,o=i.peek(u).color);return o},forcebw:function(){var r=this.vboxes;r.sort(function(r,n){return t.naturalOrder(t.sum(r.color),t.sum(n.color))});var n=r[0].color;n[0]<5&&n[1]<5&&n[2]<5&&(r[0].color=[0,0,0]);var o=r.length-1,i=r[o].color;i[0]>251&&i[1]>251&&i[2]>251&&(r[o].color=[255,255,255])}},{quantize:function(f,c){if(!f.length||c<2||c>256)return!1;var a=function(t){var o,u=new Array(1<<3*r);return t.forEach(function(t){o=i(t[0]>>n,t[1]>>n,t[2]>>n),u[o]=(u[o]||0)+1}),u}(f);a.forEach(function(){});var v=function(t,r){var o,i,u,s=1e6,h=0,f=1e6,c=0,a=1e6,v=0;return t.forEach(function(t){(o=t[0]>>n)<s?s=o:o>h&&(h=o),(i=t[1]>>n)<f?f=i:i>c&&(c=i),(u=t[2]>>n)<a?a=u:u>v&&(v=u)}),new e(s,h,f,c,a,v,r)}(f,a),l=new u(function(r,n){return t.naturalOrder(r.count(),n.count())});function p(t,r){for(var n,i=t.size(),u=0;u<o;){if(i>=r)return;if(u++>o)return;if((n=t.pop()).count()){var e=h(a,n),s=e[0],f=e[1];if(!s)return;t.push(s),f&&(t.push(f),i++)}else t.push(n),u++}}l.push(v),p(l,.75*c);for(var b=new u(function(r,n){return t.naturalOrder(r.count()*r.volume(),n.count()*n.volume())});l.size();)b.push(l.pop());p(b,c);for(var g=new s;b.size();)g.push(b.pop());return g}}}().quantize;
-//# sourceMappingURL=index.mjs.map
+/*
+ * quantize.js Copyright 2008 Nick Rabinowitz
+ * Ported to node.js by Olivier Lesnicki
+ * Licensed under the MIT license: http://www.opensource.org/licenses/mit-license.php
+ */
+// fill out a couple protovis dependencies
+
+/*
+ * Block below copied from Protovis: http://mbostock.github.com/protovis/
+ * Copyright 2010 Stanford Visualization Group
+ * Licensed under the BSD License: http://www.opensource.org/licenses/bsd-license.php
+ */
+if (!pv) {
+  var pv = {
+    map: function (array, f) {
+      var o = {};
+      return f ? array.map(function (d, i) {
+        o.index = i;
+        return f.call(o, d);
+      }) : array.slice();
+    },
+    naturalOrder: function (a, b) {
+      return a < b ? -1 : a > b ? 1 : 0;
+    },
+    sum: function (array, f) {
+      var o = {};
+      return array.reduce(f ? function (p, d, i) {
+        o.index = i;
+        return p + f.call(o, d);
+      } : function (p, d) {
+        return p + d;
+      }, 0);
+    },
+    max: function (array, f) {
+      return Math.max.apply(null, f ? pv.map(array, f) : array);
+    }
+  };
+}
+/**
+ * Basic Javascript port of the MMCQ (modified median cut quantization)
+ * algorithm from the Leptonica library (http://www.leptonica.com/).
+ * Returns a color map you can use to map original pixels to the reduced
+ * palette. Still a work in progress.
+ * 
+ * @author Nick Rabinowitz
+ * @example
+ 
+// array of pixels as [R,G,B] arrays
+var myPixels = [[190,197,190], [202,204,200], [207,214,210], [211,214,211], [205,207,207]
+                // etc
+                ];
+var maxColors = 4;
+ 
+var cmap = MMCQ.quantize(myPixels, maxColors);
+var newPalette = cmap.palette();
+var newPixels = myPixels.map(function(p) { 
+    return cmap.map(p); 
+});
+ 
+ */
+
+
+var MMCQ = function () {
+  // private constants
+  var sigbits = 5,
+      rshift = 8 - sigbits,
+      maxIterations = 1000,
+      fractByPopulations = 0.75; // get reduced-space color index for a pixel
+
+  function getColorIndex(r, g, b) {
+    return (r << 2 * sigbits) + (g << sigbits) + b;
+  } // Simple priority queue
+
+
+  function PQueue(comparator) {
+    var contents = [],
+        sorted = false;
+
+    function sort() {
+      contents.sort(comparator);
+      sorted = true;
+    }
+
+    return {
+      push: function (o) {
+        contents.push(o);
+        sorted = false;
+      },
+      peek: function (index) {
+        if (!sorted) { sort(); }
+        if (index === undefined) { index = contents.length - 1; }
+        return contents[index];
+      },
+      pop: function () {
+        if (!sorted) { sort(); }
+        return contents.pop();
+      },
+      size: function () {
+        return contents.length;
+      },
+      map: function (f) {
+        return contents.map(f);
+      },
+      debug: function () {
+        if (!sorted) { sort(); }
+        return contents;
+      }
+    };
+  } // 3d color space box
+
+
+  function VBox(r1, r2, g1, g2, b1, b2, histo) {
+    var vbox = this;
+    vbox.r1 = r1;
+    vbox.r2 = r2;
+    vbox.g1 = g1;
+    vbox.g2 = g2;
+    vbox.b1 = b1;
+    vbox.b2 = b2;
+    vbox.histo = histo;
+  }
+
+  VBox.prototype = {
+    volume: function (force) {
+      var vbox = this;
+
+      if (!vbox._volume || force) {
+        vbox._volume = (vbox.r2 - vbox.r1 + 1) * (vbox.g2 - vbox.g1 + 1) * (vbox.b2 - vbox.b1 + 1);
+      }
+
+      return vbox._volume;
+    },
+    count: function (force) {
+      var vbox = this,
+          histo = vbox.histo;
+
+      if (!vbox._count_set || force) {
+        var npix = 0,
+            i,
+            j,
+            k,
+            index;
+
+        for (i = vbox.r1; i <= vbox.r2; i++) {
+          for (j = vbox.g1; j <= vbox.g2; j++) {
+            for (k = vbox.b1; k <= vbox.b2; k++) {
+              index = getColorIndex(i, j, k);
+              npix += histo[index] || 0;
+            }
+          }
+        }
+
+        vbox._count = npix;
+        vbox._count_set = true;
+      }
+
+      return vbox._count;
+    },
+    copy: function () {
+      var vbox = this;
+      return new VBox(vbox.r1, vbox.r2, vbox.g1, vbox.g2, vbox.b1, vbox.b2, vbox.histo);
+    },
+    avg: function (force) {
+      var vbox = this,
+          histo = vbox.histo;
+
+      if (!vbox._avg || force) {
+        var ntot = 0,
+            mult = 1 << 8 - sigbits,
+            rsum = 0,
+            gsum = 0,
+            bsum = 0,
+            hval,
+            i,
+            j,
+            k,
+            histoindex;
+
+        for (i = vbox.r1; i <= vbox.r2; i++) {
+          for (j = vbox.g1; j <= vbox.g2; j++) {
+            for (k = vbox.b1; k <= vbox.b2; k++) {
+              histoindex = getColorIndex(i, j, k);
+              hval = histo[histoindex] || 0;
+              ntot += hval;
+              rsum += hval * (i + 0.5) * mult;
+              gsum += hval * (j + 0.5) * mult;
+              bsum += hval * (k + 0.5) * mult;
+            }
+          }
+        }
+
+        if (ntot) {
+          vbox._avg = [~~(rsum / ntot), ~~(gsum / ntot), ~~(bsum / ntot)];
+        } else {
+          //console.log('empty box');
+          vbox._avg = [~~(mult * (vbox.r1 + vbox.r2 + 1) / 2), ~~(mult * (vbox.g1 + vbox.g2 + 1) / 2), ~~(mult * (vbox.b1 + vbox.b2 + 1) / 2)];
+        }
+      }
+
+      return vbox._avg;
+    },
+    contains: function (pixel) {
+      var vbox = this,
+          rval = pixel[0] >> rshift;
+      gval = pixel[1] >> rshift;
+      bval = pixel[2] >> rshift;
+      return rval >= vbox.r1 && rval <= vbox.r2 && gval >= vbox.g1 && gval <= vbox.g2 && bval >= vbox.b1 && bval <= vbox.b2;
+    }
+  }; // Color map
+
+  function CMap() {
+    this.vboxes = new PQueue(function (a, b) {
+      return pv.naturalOrder(a.vbox.count() * a.vbox.volume(), b.vbox.count() * b.vbox.volume());
+    });
+  }
+
+  CMap.prototype = {
+    push: function (vbox) {
+      this.vboxes.push({
+        vbox: vbox,
+        color: vbox.avg()
+      });
+    },
+    palette: function () {
+      return this.vboxes.map(function (vb) {
+        return vb.color;
+      });
+    },
+    size: function () {
+      return this.vboxes.size();
+    },
+    map: function (color) {
+      var vboxes = this.vboxes;
+
+      for (var i = 0; i < vboxes.size(); i++) {
+        if (vboxes.peek(i).vbox.contains(color)) {
+          return vboxes.peek(i).color;
+        }
+      }
+
+      return this.nearest(color);
+    },
+    nearest: function (color) {
+      var vboxes = this.vboxes,
+          d1,
+          d2,
+          pColor;
+
+      for (var i = 0; i < vboxes.size(); i++) {
+        d2 = Math.sqrt(Math.pow(color[0] - vboxes.peek(i).color[0], 2) + Math.pow(color[1] - vboxes.peek(i).color[1], 2) + Math.pow(color[2] - vboxes.peek(i).color[2], 2));
+
+        if (d2 < d1 || d1 === undefined) {
+          d1 = d2;
+          pColor = vboxes.peek(i).color;
+        }
+      }
+
+      return pColor;
+    },
+    forcebw: function () {
+      // XXX: won't  work yet
+      var vboxes = this.vboxes;
+      vboxes.sort(function (a, b) {
+        return pv.naturalOrder(pv.sum(a.color), pv.sum(b.color));
+      }); // force darkest color to black if everything < 5
+
+      var lowest = vboxes[0].color;
+      if (lowest[0] < 5 && lowest[1] < 5 && lowest[2] < 5) { vboxes[0].color = [0, 0, 0]; } // force lightest color to white if everything > 251
+
+      var idx = vboxes.length - 1,
+          highest = vboxes[idx].color;
+      if (highest[0] > 251 && highest[1] > 251 && highest[2] > 251) { vboxes[idx].color = [255, 255, 255]; }
+    }
+  }; // histo (1-d array, giving the number of pixels in
+  // each quantized region of color space), or null on error
+
+  function getHisto(pixels) {
+    var histosize = 1 << 3 * sigbits,
+        histo = new Array(histosize),
+        index,
+        rval,
+        gval,
+        bval;
+    pixels.forEach(function (pixel) {
+      rval = pixel[0] >> rshift;
+      gval = pixel[1] >> rshift;
+      bval = pixel[2] >> rshift;
+      index = getColorIndex(rval, gval, bval);
+      histo[index] = (histo[index] || 0) + 1;
+    });
+    return histo;
+  }
+
+  function vboxFromPixels(pixels, histo) {
+    var rmin = 1000000,
+        rmax = 0,
+        gmin = 1000000,
+        gmax = 0,
+        bmin = 1000000,
+        bmax = 0,
+        rval,
+        gval,
+        bval; // find min/max
+
+    pixels.forEach(function (pixel) {
+      rval = pixel[0] >> rshift;
+      gval = pixel[1] >> rshift;
+      bval = pixel[2] >> rshift;
+      if (rval < rmin) { rmin = rval; }else if (rval > rmax) { rmax = rval; }
+      if (gval < gmin) { gmin = gval; }else if (gval > gmax) { gmax = gval; }
+      if (bval < bmin) { bmin = bval; }else if (bval > bmax) { bmax = bval; }
+    });
+    return new VBox(rmin, rmax, gmin, gmax, bmin, bmax, histo);
+  }
+
+  function medianCutApply(histo, vbox) {
+    if (!vbox.count()) { return; }
+    var rw = vbox.r2 - vbox.r1 + 1,
+        gw = vbox.g2 - vbox.g1 + 1,
+        bw = vbox.b2 - vbox.b1 + 1,
+        maxw = pv.max([rw, gw, bw]); // only one pixel, no split
+
+    if (vbox.count() == 1) {
+      return [vbox.copy()];
+    }
+    /* Find the partial sum arrays along the selected axis. */
+
+
+    var total = 0,
+        partialsum = [],
+        lookaheadsum = [],
+        i,
+        j,
+        k,
+        sum,
+        index;
+
+    if (maxw == rw) {
+      for (i = vbox.r1; i <= vbox.r2; i++) {
+        sum = 0;
+
+        for (j = vbox.g1; j <= vbox.g2; j++) {
+          for (k = vbox.b1; k <= vbox.b2; k++) {
+            index = getColorIndex(i, j, k);
+            sum += histo[index] || 0;
+          }
+        }
+
+        total += sum;
+        partialsum[i] = total;
+      }
+    } else if (maxw == gw) {
+      for (i = vbox.g1; i <= vbox.g2; i++) {
+        sum = 0;
+
+        for (j = vbox.r1; j <= vbox.r2; j++) {
+          for (k = vbox.b1; k <= vbox.b2; k++) {
+            index = getColorIndex(j, i, k);
+            sum += histo[index] || 0;
+          }
+        }
+
+        total += sum;
+        partialsum[i] = total;
+      }
+    } else {
+      /* maxw == bw */
+      for (i = vbox.b1; i <= vbox.b2; i++) {
+        sum = 0;
+
+        for (j = vbox.r1; j <= vbox.r2; j++) {
+          for (k = vbox.g1; k <= vbox.g2; k++) {
+            index = getColorIndex(j, k, i);
+            sum += histo[index] || 0;
+          }
+        }
+
+        total += sum;
+        partialsum[i] = total;
+      }
+    }
+
+    partialsum.forEach(function (d, i) {
+      lookaheadsum[i] = total - d;
+    });
+
+    function doCut(color) {
+      var dim1 = color + '1',
+          dim2 = color + '2',
+          left,
+          right,
+          vbox1,
+          vbox2,
+          d2,
+          count2 = 0;
+
+      for (i = vbox[dim1]; i <= vbox[dim2]; i++) {
+        if (partialsum[i] > total / 2) {
+          vbox1 = vbox.copy();
+          vbox2 = vbox.copy();
+          left = i - vbox[dim1];
+          right = vbox[dim2] - i;
+          if (left <= right) { d2 = Math.min(vbox[dim2] - 1, ~~(i + right / 2)); }else { d2 = Math.max(vbox[dim1], ~~(i - 1 - left / 2)); } // avoid 0-count boxes
+
+          while (!partialsum[d2]) { d2++; }
+
+          count2 = lookaheadsum[d2];
+
+          while (!count2 && partialsum[d2 - 1]) { count2 = lookaheadsum[--d2]; } // set dimensions
+
+
+          vbox1[dim2] = d2;
+          vbox2[dim1] = vbox1[dim2] + 1; // console.log('vbox counts:', vbox.count(), vbox1.count(), vbox2.count());
+
+          return [vbox1, vbox2];
+        }
+      }
+    } // determine the cut planes
+
+
+    return maxw == rw ? doCut('r') : maxw == gw ? doCut('g') : doCut('b');
+  }
+
+  function quantize(pixels, maxcolors) {
+    // short-circuit
+    if (!pixels.length || maxcolors < 2 || maxcolors > 256) {
+      // console.log('wrong number of maxcolors');
+      return false;
+    } // XXX: check color content and convert to grayscale if insufficient
+
+
+    var histo = getHisto(pixels);
+ // check that we aren't below maxcolors already
+    histo.forEach(function () {
+    });
+    // get the beginning vbox from the colors
+
+
+    var vbox = vboxFromPixels(pixels, histo),
+        pq = new PQueue(function (a, b) {
+      return pv.naturalOrder(a.count(), b.count());
+    });
+    pq.push(vbox); // inner function to do the iteration
+
+    function iter(lh, target) {
+      var ncolors = lh.size(),
+          niters = 0,
+          vbox;
+
+      while (niters < maxIterations) {
+        if (ncolors >= target) { return; }
+
+        if (niters++ > maxIterations) {
+          // console.log("infinite loop; perhaps too few pixels!");
+          return;
+        }
+
+        vbox = lh.pop();
+
+        if (!vbox.count()) {
+          /* just put it back */
+          lh.push(vbox);
+          niters++;
+          continue;
+        } // do the cut
+
+
+        var vboxes = medianCutApply(histo, vbox),
+            vbox1 = vboxes[0],
+            vbox2 = vboxes[1];
+
+        if (!vbox1) {
+          // console.log("vbox1 not defined; shouldn't happen!");
+          return;
+        }
+
+        lh.push(vbox1);
+
+        if (vbox2) {
+          /* vbox2 can be null */
+          lh.push(vbox2);
+          ncolors++;
+        }
+      }
+    } // first set of colors, sorted by population
+
+
+    iter(pq, fractByPopulations * maxcolors); // console.log(pq.size(), pq.debug().length, pq.debug().slice());
+    // Re-sort by the product of pixel occupancy times the size in color space.
+
+    var pq2 = new PQueue(function (a, b) {
+      return pv.naturalOrder(a.count() * a.volume(), b.count() * b.volume());
+    });
+
+    while (pq.size()) {
+      pq2.push(pq.pop());
+    } // next set - generate the median cuts using the (npix * vol) sorting.
+
+
+    iter(pq2, maxcolors); // calculate the actual colors
+
+    var cmap = new CMap();
+
+    while (pq2.size()) {
+      cmap.push(pq2.pop());
+    }
+
+    return cmap;
+  }
+
+  return {
+    quantize: quantize
+  };
+}();
+
+var quantize = MMCQ.quantize;
+
+export default quantize;

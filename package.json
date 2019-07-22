@@ -20,11 +20,10 @@
     },
     "source": "src/quantize.js",
     "main": "dist/index.js",
-    "module": "dist/quantize.mjs",
-    "umd:main": "dist/quantize.umd.js",
+    "module": "dist/index.mjs",
     "scripts": {
-        "build": "microbundle",
-        "watch": "microbundle watch"
+        "build": "microbundle --no-compress --no-sourcemap",
+        "watch": "microbundle --no-compress --no-sourcemap watch"
     },
     "dependencies": {},
     "devDependencies": {
